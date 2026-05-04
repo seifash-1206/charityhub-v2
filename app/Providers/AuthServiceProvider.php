@@ -2,9 +2,13 @@
 
 namespace App\Providers;
 
-use App\Models\Campaign;
-use App\Policies\CampaignPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+
+// 🔥 Models
+use App\Models\Campaign;
+
+// 🔥 Policies
+use App\Policies\CampaignPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -14,6 +18,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
+        // 🔐 Campaign authorization mapping
         Campaign::class => CampaignPolicy::class,
     ];
 
@@ -22,6 +27,13 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // 🔥 Register policies
         $this->registerPolicies();
+
+        // 🔥 Optional: future gates (for admin/global permissions)
+        // Example:
+        // Gate::define('isAdmin', function ($user) {
+        //     return $user->role === 'admin';
+        // });
     }
 }

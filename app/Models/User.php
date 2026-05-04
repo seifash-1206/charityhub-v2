@@ -6,6 +6,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Donation;
+use App\Models\Campaign;
 
 class User extends Authenticatable
 {
@@ -44,5 +46,21 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * 🔗 RELATIONSHIPS
+     */
+
+    // 💰 User donations
+    public function donations()
+    {
+        return $this->hasMany(Donation::class);
+    }
+
+    // 📢 User campaigns (if user creates campaigns)
+    public function campaigns()
+    {
+        return $this->hasMany(Campaign::class);
     }
 }

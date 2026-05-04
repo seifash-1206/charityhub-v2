@@ -93,26 +93,36 @@
                 <!-- ACTIONS -->
                 <div class="flex justify-between items-center mt-5 text-sm">
 
-                    <!-- 🔥 EDIT (OWNER OR ADMIN) -->
-                    @can('update', $campaign)
-                        <a href="{{ route('campaigns.edit', $campaign) }}"
-                           class="text-blue-600 hover:underline">
-                           Edit
-                        </a>
-                    @endcan
+                    <!-- 👁 VIEW BUTTON (NEW 🔥) -->
+                    <a href="{{ route('campaigns.show', $campaign) }}"
+                       class="text-green-600 font-semibold hover:underline">
+                        View
+                    </a>
 
-                    <!-- 🔥 DELETE (OWNER OR ADMIN) -->
-                    @can('delete', $campaign)
-                        <form method="POST" action="{{ route('campaigns.destroy', $campaign) }}"
-                              onsubmit="return confirm('Are you sure?');">
-                            @csrf
-                            @method('DELETE')
+                    <div class="flex gap-3">
 
-                            <button class="text-red-500 hover:underline">
-                                Delete
-                            </button>
-                        </form>
-                    @endcan
+                        <!-- EDIT -->
+                        @can('update', $campaign)
+                            <a href="{{ route('campaigns.edit', $campaign) }}"
+                               class="text-blue-600 hover:underline">
+                               Edit
+                            </a>
+                        @endcan
+
+                        <!-- DELETE -->
+                        @can('delete', $campaign)
+                            <form method="POST" action="{{ route('campaigns.destroy', $campaign) }}"
+                                  onsubmit="return confirm('Are you sure?');">
+                                @csrf
+                                @method('DELETE')
+
+                                <button class="text-red-500 hover:underline">
+                                    Delete
+                                </button>
+                            </form>
+                        @endcan
+
+                    </div>
 
                 </div>
 

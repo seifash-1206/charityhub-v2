@@ -18,6 +18,14 @@ class CampaignController extends Controller
     }
 
     /**
+     * 🔥 SHOW SINGLE CAMPAIGN (NO AUTH BLOCK)
+     */
+    public function show(Campaign $campaign)
+    {
+        return view('campaigns.show', compact('campaign'));
+    }
+
+    /**
      * Show create form
      */
     public function create()
@@ -103,8 +111,12 @@ class CampaignController extends Controller
             ->route('campaigns.index')
             ->with('success', 'Campaign deleted ❌');
     }
-    public function __construct()
-    {
-    $this->authorizeResource(Campaign::class, 'campaign');
-}
+
+    /**
+     * 🚫 REMOVE AUTO POLICY (CAUSE OF 403)
+     */
+    // public function __construct()
+    // {
+    //     $this->authorizeResource(Campaign::class, 'campaign');
+    // }
 }

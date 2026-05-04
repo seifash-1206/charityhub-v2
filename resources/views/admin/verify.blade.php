@@ -34,7 +34,7 @@
         @endif
 
         <!-- FORM -->
-        <form method="POST" action="{{ route('admin.verify') }}">
+            <form method="POST" action="{{ route('admin.verify.post') }}">
             @csrf
 
             <!-- ADMIN KEY -->
