@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Donation;
 use Illuminate\Support\Facades\Log;
+use App\Events\DonationPaid;
 
 class AdminDonationController extends Controller
 {
@@ -15,7 +16,7 @@ class AdminDonationController extends Controller
     {
         $donations = Donation::with(['user', 'campaign'])
             ->latest()
-            ->get();
+            ->paginate(10); // ✅ FIXED (pagination instead of get)
 
         return view('admin.donations', compact('donations'));
     }
@@ -25,10 +26,11 @@ class AdminDonationController extends Controller
      */
     public function approve($id)
     {
-        $donation = Donation::with('campaign')->findOrFail($id);
+        $donation = Donation::with(['campaign', 'user'])->findOrFail($id);
 
+        // ⚠️ prevent double approval
         if ($donation->status === 'paid') {
-            return back()->with('error', 'Already approved');
+            return back()->with('error', 'Donation already approved');
         }
 
         // 🔥 mark as paid
@@ -36,7 +38,7 @@ class AdminDonationController extends Controller
             'status' => 'paid'
         ]);
 
-        // 📈 update campaign total
+        // 📈 update campaign total ONLY once
         if ($donation->campaign) {
             $donation->campaign->increment(
                 'current_amount',
@@ -44,11 +46,15 @@ class AdminDonationController extends Controller
             );
         }
 
-        Log::info('Donation approved by admin', [
-            'donation_id' => $donation->id
+        // 🔥 FIRE EVENT (EMAIL + PDF)
+        event(new DonationPaid($donation));
+
+        Log::info('✅ Donation approved by admin', [
+            'donation_id' => $donation->id,
+            'amount' => $donation->amount
         ]);
 
-        return back()->with('success', 'Donation approved ✅');
+        return back()->with('success', 'Donation approved successfully');
     }
 
     /**
@@ -58,18 +64,20 @@ class AdminDonationController extends Controller
     {
         $donation = Donation::findOrFail($id);
 
+        // ⚠️ prevent double reject
         if ($donation->status === 'failed') {
-            return back()->with('error', 'Already rejected');
+            return back()->with('error', 'Donation already rejected');
         }
 
+        // ❌ mark as failed
         $donation->update([
             'status' => 'failed'
         ]);
 
-        Log::info('Donation rejected by admin', [
+        Log::info('❌ Donation rejected by admin', [
             'donation_id' => $donation->id
         ]);
 
-        return back()->with('success', 'Donation rejected ❌');
+        return back()->with('success', 'Donation rejected successfully');
     }
 }

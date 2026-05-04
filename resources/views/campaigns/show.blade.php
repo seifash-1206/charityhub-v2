@@ -68,20 +68,40 @@
         </p>
     @endauth
 
-    <!-- SUCCESS MESSAGE + PRINT -->
-    @if(session('success'))
+    <!-- SUCCESS MESSAGE + LOGIC -->
+    @if(session('success') && session('donation_id'))
+
+        @php
+            $lastDonation = \App\Models\Donation::with('campaign')
+                ->find(session('donation_id'));
+        @endphp
+
         <div class="mt-6 p-4 bg-green-100 text-green-700 rounded-lg shadow">
 
             <p class="font-semibold">
                 {{ session('success') }}
             </p>
 
-            {{-- 🔥 IMPORTANT: needs last donation id --}}
-            @if(session('donation_id'))
-                <a href="{{ route('donations.receipt', session('donation_id')) }}"
+            <!-- 🔥 STATUS HANDLING -->
+            @if($lastDonation && $lastDonation->status === 'paid')
+
+                <a href="{{ route('donations.receipt', $lastDonation->id) }}"
                    class="inline-block mt-3 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
-                    🧾 Print Receipt
+                    🧾 Download Receipt
                 </a>
+
+            @elseif($lastDonation && $lastDonation->status === 'pending')
+
+                <p class="mt-3 text-yellow-600 font-medium">
+                    ⏳ Waiting for admin approval
+                </p>
+
+            @elseif($lastDonation && $lastDonation->status === 'failed')
+
+                <p class="mt-3 text-red-600 font-medium">
+                    ❌ Donation was rejected
+                </p>
+
             @endif
 
         </div>

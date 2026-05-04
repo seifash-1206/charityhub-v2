@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Donation;
+use App\Models\Campaign;
 
 class AdminController extends Controller
 {
@@ -12,14 +14,12 @@ class AdminController extends Controller
      */
     public function showVerify()
     {
-        // 🚫 Not logged in
         if (!Auth::check()) {
             return redirect()->route('login');
         }
 
         $user = Auth::user();
 
-        // 🚫 Not admin
         if ($user->role !== 'admin') {
             return redirect()->route('dashboard');
         }
@@ -32,36 +32,65 @@ class AdminController extends Controller
      */
     public function verify(Request $request)
     {
-        // ✅ Validate input
         $request->validate([
             'admin_key' => 'required|string',
         ]);
 
-        // 🚫 Not logged in
         if (!Auth::check()) {
             return redirect()->route('login');
         }
 
         $user = Auth::user();
 
-        // 🚫 Not admin
         if ($user->role !== 'admin') {
             return redirect()->route('dashboard');
         }
 
-        // 💣 WRONG KEY → LOGOUT
+        // ❌ WRONG KEY → logout
         if ($request->admin_key !== 'Admin1012') {
 
             Auth::logout();
 
             return redirect()->route('login')->withErrors([
-                'email' => 'The email or the password is wrong',
+                'email' => 'Invalid admin key ❌',
             ]);
         }
 
-        // ✅ SUCCESS → SET SESSION (THIS IS THE IMPORTANT FIX)
+        // ✅ SUCCESS
         session()->put('admin_verified', true);
 
         return redirect()->route('dashboard');
+    }
+
+    /**
+     * 🧠 MAIN DASHBOARD (FINAL FIX 🔥)
+     */
+    public function dashboard()
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        // 📊 Stats
+        $totalRaised = Donation::where('status', 'paid')->sum('amount');
+        $totalCampaigns = Campaign::count();
+        $activeCampaigns = Campaign::where('status', 'active')->count();
+
+        // 📈 Recent campaigns (FIXED)
+        $recentCampaigns = Campaign::latest()->take(5)->get();
+
+        // 💰 Latest donations
+        $donations = Donation::with(['user', 'campaign'])
+            ->latest()
+            ->take(10)
+            ->get();
+
+        return view('dashboard', compact(
+            'totalRaised',
+            'totalCampaigns',
+            'activeCampaigns',
+            'recentCampaigns',
+            'donations'
+        ));
     }
 }

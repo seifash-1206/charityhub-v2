@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Stripe\Webhook;
 use App\Models\Donation;
 use Illuminate\Support\Facades\Log;
-use App\Events\DonationPaid;
 
 class StripeWebhookController extends Controller
 {
@@ -38,30 +37,24 @@ class StripeWebhookController extends Controller
         }
 
         // ===============================
-        // 🎯 HANDLE ONLY CHECKOUT SUCCESS
+        // 🎯 HANDLE CHECKOUT SUCCESS
         // ===============================
 
         if ($event->type === 'checkout.session.completed') {
 
             $session = $event->data->object;
 
-            // 🔥 DEBUG
             Log::info('🔥 Webhook hit', [
                 'session_id' => $session->id,
                 'payment_status' => $session->payment_status,
-                'amount_total' => $session->amount_total,
             ]);
 
-            // 🔍 Find donation by session ID
+            // 🔍 Find donation
             $donation = Donation::where('transaction_id', $session->id)->first();
 
-            // 💣 FALLBACK (if mismatch)
+            // 💣 fallback using metadata
             if (!$donation && isset($session->metadata->donation_id)) {
                 $donation = Donation::find($session->metadata->donation_id);
-
-                Log::info('⚡ Fallback donation lookup used', [
-                    'donation_id' => $session->metadata->donation_id
-                ]);
             }
 
             if (!$donation) {
@@ -71,24 +64,15 @@ class StripeWebhookController extends Controller
                 return response('Donation not found', 200);
             }
 
-            // 💰 Mark as paid ONLY if Stripe confirms
-            if ($session->payment_status === 'paid' && $donation->status !== 'paid') {
+            // ✅ Only confirm payment → set to pending
+            if ($session->payment_status === 'paid' && $donation->status !== 'pending') {
 
-                $donation->update(['status' => 'pending']);
+                $donation->update([
+                    'status' => 'pending'
+                ]);
 
-                // 📈 Update campaign
-                if ($donation->campaign) {
-                    $donation->campaign->increment(
-                        'current_amount',
-                        $donation->amount
-                    );
-                }
-
-                // 🔥 FIRE EVENT (PDF + EMAIL)
-                event(new DonationPaid($donation));
-
-                Log::info('💵 Donation marked as PAID + event fired', [
-                    'donation_id' => $donation->id,
+                Log::info('💰 Donation payment confirmed → pending approval', [
+                    'donation_id' => $donation->id
                 ]);
             }
         }

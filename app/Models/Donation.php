@@ -94,4 +94,12 @@ class Donation extends Model
             ->where('status', 'paid')
             ->exists();
     }
+
+
+    protected static function booted()
+    {
+        static::creating(function ($donation) {
+            $donation->tracking_id = 'DON-' . now()->format('Y') . '-' . strtoupper(uniqid());
+        });
+    }
 }

@@ -19,7 +19,7 @@
         <div class="backdrop-blur-lg bg-white/60 border border-white/40 shadow-lg rounded-2xl p-6">
             <h2 class="text-gray-500 text-sm">Total Donations</h2>
             <p class="text-2xl font-bold text-gray-800 mt-2">
-                ${{ number_format($totalRaised, 2) }}
+                ${{ number_format($totalRaised ?? 0, 2) }}
             </p>
         </div>
 
@@ -27,15 +27,15 @@
         <div class="backdrop-blur-lg bg-white/60 border border-white/40 shadow-lg rounded-2xl p-6">
             <h2 class="text-gray-500 text-sm">Campaigns</h2>
             <p class="text-2xl font-bold text-gray-800 mt-2">
-                {{ $totalCampaigns }}
+                {{ $totalCampaigns ?? 0 }}
             </p>
         </div>
 
-        <!-- ACTIVE -->
+        <!-- ACTIVE CAMPAIGNS -->
         <div class="backdrop-blur-lg bg-white/60 border border-white/40 shadow-lg rounded-2xl p-6">
             <h2 class="text-gray-500 text-sm">Active Campaigns</h2>
             <p class="text-2xl font-bold text-red-500 mt-2">
-                {{ $activeCampaigns }}
+                {{ $activeCampaigns ?? 0 }}
             </p>
         </div>
 
@@ -63,9 +63,13 @@
 
                     <div>
                         <div class="flex justify-between text-sm">
-                            <span>{{ $campaign->title }}</span>
-                            <span>
-                                ${{ $campaign->current_amount }} / ${{ $campaign->goal_amount }}
+                            <span class="font-medium text-gray-700">
+                                {{ $campaign->title }}
+                            </span>
+                            <span class="text-gray-500">
+                                ${{ number_format($campaign->current_amount, 2) }} 
+                                / 
+                                ${{ number_format($campaign->goal_amount, 2) }}
                             </span>
                         </div>
 
@@ -78,14 +82,16 @@
                     </div>
 
                 @empty
-                    <p class="text-gray-500">No campaigns yet</p>
+                    <p class="text-gray-500 text-sm">
+                        No campaigns yet
+                    </p>
                 @endforelse
 
             </div>
 
         </div>
 
-        <!-- (REMOVED FAKE ACTIVITY FOR NOW) -->
+        <!-- ACTIVITY PLACEHOLDER -->
         <div class="backdrop-blur-lg bg-white/40 border border-white/30 shadow rounded-2xl p-6 flex items-center justify-center">
             <p class="text-gray-400 text-sm">
                 Activity system coming soon...

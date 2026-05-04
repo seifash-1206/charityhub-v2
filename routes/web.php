@@ -3,14 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CampaignController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DonationController;
 use App\Http\Controllers\StripeWebhookController;
+use App\Http\Controllers\AdminDonationController;
 use App\Models\Donation;
 use Barryvdh\DomPDF\Facade\Pdf;
-
-
 
 /*
 |--------------------------------------------------------------------------
@@ -27,24 +25,45 @@ Route::get('/', function () {
 // 🔐 AUTH PROTECTED ROUTES
 Route::middleware(['auth'])->group(function () {
 
-    // 📊 Dashboard
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // 📊 Dashboard (🔥 FIXED — uses AdminController)
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])
+        ->name('dashboard');
 
     // 👤 Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // 🎯 Campaigns (FULL CRUD)
+    // 🎯 Campaigns
     Route::resource('campaigns', CampaignController::class);
 
-    // 💰 Donations (NEW 🔥)
+    // 💰 Donate
     Route::post('/campaigns/{campaign}/donate', [DonationController::class, 'store'])
         ->name('donations.store');
+
+    // 🧾 Receipt (PDF download)
+    Route::get('/donations/{id}/receipt', function ($id) {
+        $donation = Donation::with(['user','campaign'])->findOrFail($id);
+
+        $pdf = Pdf::loadView('pdf.receipt', [
+            'donation' => $donation
+        ]);
+
+        return $pdf->download('receipt.pdf');
+    })->name('donations.receipt');
 });
 
 
-// 🛡️ ADMIN VERIFICATION (CLEANED — NO DUPLICATES)
+// 💳 Stripe success redirect
+Route::get('/donation/success', [DonationController::class, 'success'])
+    ->name('donations.success');
+
+
+// 🔥 Stripe webhook (ONLY ONCE — fixed)
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
+
+
+// 🛡️ ADMIN VERIFY
 Route::middleware('auth')->group(function () {
 
     Route::get('/admin/verify', [AdminController::class, 'showVerify'])
@@ -52,26 +71,28 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/admin/verify', [AdminController::class, 'verify'])
         ->name('admin.verify.post');
-
 });
 
 
-Route::get('/donation/success', [DonationController::class, 'success'])
-    ->name('donations.success');
+// 🛡️ ADMIN PANEL (donations)
+Route::middleware(['auth'])->prefix('admin')->group(function () {
+
+    Route::get('/donations', [AdminDonationController::class, 'index'])
+        ->name('admin.donations');
+
+    Route::post('/donations/{id}/approve', [AdminDonationController::class, 'approve'])
+        ->name('admin.donations.approve');
+
+    Route::post('/donations/{id}/reject', [AdminDonationController::class, 'reject'])
+        ->name('admin.donations.reject');
+});
 
 
-Route::post('/stripe/webhook', [App\Http\Controllers\StripeWebhookController::class, 'handle']);
-// 🔑 Auth routes (login, register, etc.)
-
-
-
-Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
-
-
+// 🧪 TEST PDF (optional)
 Route::get('/test-pdf/{id}', function ($id) {
-    $donation = App\Models\Donation::findOrFail($id);
+    $donation = Donation::findOrFail($id);
 
-    $pdf = Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.certificate', [
+    $pdf = Pdf::loadView('pdf.certificate', [
         'donation' => $donation
     ]);
 
@@ -79,24 +100,18 @@ Route::get('/test-pdf/{id}', function ($id) {
 });
 
 
-Route::get('/donations/{id}/receipt', function ($id) {
-    $donation = Donation::with(['user','campaign'])->findOrFail($id);
-
-    $pdf = Pdf::loadView('pdf.receipt', [
-        'donation' => $donation
-    ]);
-
-    return $pdf->download('receipt.pdf');
-})->middleware('auth')->name('donations.receipt');
-
 Route::middleware(['auth'])->group(function () {
 
-    Route::get('/admin/donations', [App\Http\Controllers\AdminDonationController::class, 'index'])
+    Route::get('/admin/donations', [AdminDonationController::class, 'index'])
         ->name('admin.donations');
 
-    Route::post('/admin/donations/{id}/approve', [App\Http\Controllers\AdminDonationController::class, 'approve']);
+    Route::post('/admin/donations/{id}/approve', [AdminDonationController::class, 'approve'])
+        ->name('admin.donations.approve');
 
-    Route::post('/admin/donations/{id}/رفض', [App\Http\Controllers\AdminDonationController::class, 'reject']);
+    Route::post('/admin/donations/{id}/reject', [AdminDonationController::class, 'reject'])
+        ->name('admin.donations.reject');
 
 });
+
+
 require __DIR__.'/auth.php';

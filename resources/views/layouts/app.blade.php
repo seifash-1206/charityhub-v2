@@ -21,24 +21,52 @@
     <nav class="relative z-10 backdrop-blur-lg bg-white/70 border-b border-white/40 shadow-sm">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
 
-            <a href="/dashboard" class="flex items-center gap-2 text-blue-900 font-bold text-lg">
-                🚀 CharityHub
+            <!-- LOGO -->
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-2 text-blue-900 font-bold text-lg">
+                CharityHub
             </a>
 
+            <!-- NAV LINKS -->
             <div class="flex items-center gap-6">
-                <a href="/dashboard" class="text-gray-600 hover:text-blue-900">Dashboard</a>
-                <a href="/campaigns" class="text-gray-600 hover:text-blue-900">Campaigns</a>
 
+                <!-- DASHBOARD -->
+                <a href="{{ route('dashboard') }}"
+                   class="transition {{ request()->routeIs('dashboard') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-900' }}">
+                    Dashboard
+                </a>
+
+                <!-- CAMPAIGNS -->
+                <a href="{{ route('campaigns.index') }}"
+                   class="transition {{ request()->routeIs('campaigns.*') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-900' }}">
+                    Campaigns
+                </a>
+
+                <!-- 🔥 ADMIN ONLY -->
+                @auth
+                @if(auth()->user()->role === 'admin')
+
+                <a href="{{ route('admin.donations') }}"
+                   class="transition {{ request()->routeIs('admin.donations') ? 'text-blue-700 font-semibold' : 'text-gray-600 hover:text-blue-900' }}">
+                    Donations
+                </a>
+
+                @endif
+                @endauth
+
+                <!-- LOGOUT -->
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button class="text-red-500 hover:text-red-700">Logout</button>
+                    <button class="text-red-500 hover:text-red-700 transition">
+                        Logout
+                    </button>
                 </form>
+
             </div>
 
         </div>
     </nav>
 
-    <!-- ✅ ONLY THIS (IMPORTANT) -->
+    <!-- CONTENT -->
     <main class="relative z-10 p-8">
         {{ $slot }}
     </main>
