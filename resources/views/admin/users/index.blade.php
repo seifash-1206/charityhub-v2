@@ -8,8 +8,8 @@
         <div class="flex-1 min-w-44">
             <label class="block text-xs text-gray-400 mb-1">Search</label>
             <input type="text" name="search" value="{{ request('search') }}"
-                   placeholder="Name or email..."
-                   class="w-full bg-gray-900 border border-white/10 text-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                placeholder="Name or email..."
+                class="w-full bg-gray-900 border border-white/10 text-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
         </div>
         <div>
             <label class="block text-xs text-gray-400 mb-1">Role</label>
@@ -19,7 +19,7 @@
                 <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin</option>
             </select>
         </div>
-        <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition">Filter</button>
+        <button type="submit" class="px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm rounded-lg transition">Filter</button>
         <a href="{{ route('admin.users.index') }}" class="px-5 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded-lg transition">Reset</a>
     </form>
 
@@ -38,53 +38,53 @@
                 </thead>
                 <tbody class="divide-y divide-white/5">
                     @forelse($users as $user)
-                        <tr class="hover:bg-white/2 transition">
-                            <td class="px-5 py-3.5">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                                        {{ strtoupper(substr($user->name, 0, 1)) }}
-                                    </div>
-                                    <div>
-                                        <p class="font-medium text-gray-200">{{ $user->name }}</p>
-                                        <p class="text-xs text-gray-500">{{ $user->email }}</p>
-                                    </div>
+                    <tr class="hover:bg-white/2 transition">
+                        <td class="px-5 py-3.5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                                    {{ strtoupper(substr($user->name, 0, 1)) }}
                                 </div>
-                            </td>
-                            <td class="px-5 py-3.5">
-                                <span class="text-xs px-2.5 py-1 rounded-full font-medium
-                                    {{ $user->role === 'admin' ? 'bg-indigo-900/50 text-indigo-400' : 'bg-gray-700 text-gray-400' }}">
-                                    {{ ucfirst($user->role ?? 'user') }}
-                                </span>
-                            </td>
-                            <td class="px-5 py-3.5 text-gray-300">
-                                {{ $user->donations_count ?? 0 }} approved
-                            </td>
-                            <td class="px-5 py-3.5 text-xs text-gray-400">
-                                {{ $user->created_at->format('M d, Y') }}
-                            </td>
-                            <td class="px-5 py-3.5">
-                                <div class="flex items-center justify-center gap-2">
-                                    <a href="{{ route('admin.users.show', $user) }}"
-                                       class="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition text-xs px-3 py-1.5">
-                                        View
-                                    </a>
-                                    @if($user->id !== auth()->id())
-                                        <form method="POST" action="{{ route('admin.users.role', $user) }}">
-                                            @csrf
-                                            <input type="hidden" name="role" value="{{ $user->role === 'admin' ? 'user' : 'admin' }}">
-                                            <button class="text-xs px-3 py-1.5 rounded-lg
-                                                {{ $user->role === 'admin' ? 'bg-red-900/30 text-red-400 hover:bg-red-900/50' : 'bg-indigo-900/30 text-indigo-400 hover:bg-indigo-900/50' }} transition">
-                                                {{ $user->role === 'admin' ? 'Revoke Admin' : 'Make Admin' }}
-                                            </button>
-                                        </form>
-                                    @endif
+                                <div>
+                                    <p class="font-medium text-gray-200">{{ $user->name }}</p>
+                                    <p class="text-xs text-gray-500">{{ $user->email }}</p>
                                 </div>
-                            </td>
-                        </tr>
+                            </div>
+                        </td>
+                        <td class="px-5 py-3.5">
+                            <span class="text-xs px-2.5 py-1 rounded-full font-medium
+                                    {{ $user->role === 'admin' ? 'bg-primary-900/50 text-primary-400' : 'bg-gray-700 text-gray-400' }}">
+                                {{ ucfirst($user->role ?? 'user') }}
+                            </span>
+                        </td>
+                        <td class="px-5 py-3.5 text-gray-300">
+                            {{ $user->donations_count ?? 0 }} approved
+                        </td>
+                        <td class="px-5 py-3.5 text-xs text-gray-400">
+                            {{ $user->created_at->format('M d, Y') }}
+                        </td>
+                        <td class="px-5 py-3.5">
+                            <div class="flex items-center justify-center gap-2">
+                                <a href="{{ route('admin.users.show', $user) }}"
+                                    class="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition text-xs px-3 py-1.5">
+                                    View
+                                </a>
+                                @if($user->id !== auth()->id())
+                                <form method="POST" action="{{ route('admin.users.role', $user) }}">
+                                    @csrf
+                                    <input type="hidden" name="role" value="{{ $user->role === 'admin' ? 'user' : 'admin' }}">
+                                    <button class="text-xs px-3 py-1.5 rounded-lg
+                                                {{ $user->role === 'admin' ? 'bg-red-900/30 text-red-400 hover:bg-red-900/50' : 'bg-primary-900/30 text-primary-400 hover:bg-primary-900/50' }} transition">
+                                        {{ $user->role === 'admin' ? 'Revoke Admin' : 'Make Admin' }}
+                                    </button>
+                                </form>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
                     @empty
-                        <tr>
-                            <td colspan="5" class="px-5 py-12 text-center text-gray-500">No users found</td>
-                        </tr>
+                    <tr>
+                        <td colspan="5" class="px-5 py-12 text-center text-gray-500">No users found</td>
+                    </tr>
                     @endforelse
                 </tbody>
             </table>
