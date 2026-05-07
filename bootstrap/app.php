@@ -11,10 +11,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
 
-    // 🔥 FIX CSRF FOR STRIPE WEBHOOK
     ->withMiddleware(function (Middleware $middleware) {
+        // Exclude Stripe webhook from CSRF
         $middleware->validateCsrfTokens(except: [
             'stripe/webhook',
+        ]);
+
+        // Register named middleware aliases
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
     })
 
