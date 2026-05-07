@@ -37,14 +37,14 @@
   }
 
   .dark {
-    --background: #0f172a;
+    --background: #1a202c;
     --foreground: #f9fafb;
-    --card: #111827;
+    --card: #2d3748;
     --card-foreground: #f9fafb;
-    --border: #374151;
-    --input: #1f2937;
-    --muted: #374151;
-    --muted-foreground: #9ca3af;
+    --border: #4a5568;
+    --input: #2d3748;
+    --muted: #4a5568;
+    --muted-foreground: #cbd5e0;
   }
 }
 
@@ -67,5 +67,13 @@
 
   .text-gradient {
     @apply bg-gradient-to-r from-primary-900 to-primary-700 bg-clip-text text-transparent;
+  }
+
+  .glass-card {
+    @apply bg-white/60 dark:bg-secondary-800/60 backdrop-blur-xl border border-white/40 dark:border-secondary-700/40 rounded-2xl shadow-lg dark:shadow-secondary-900/20;
+  }
+
+  .glass-input {
+    @apply bg-white/80 dark:bg-secondary-700/50 border border-secondary-200 dark:border-secondary-600 backdrop-blur-sm;
   }
 }
