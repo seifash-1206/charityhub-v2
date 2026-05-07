@@ -54,7 +54,7 @@ interface ThemeContextType {
 
 export const ThemeContext = React.createContext<ThemeContextType>({
   theme: 'light',
-  toggleTheme: () => {},
+  toggleTheme: () => { },
 });
 
 export function useTheme() {
