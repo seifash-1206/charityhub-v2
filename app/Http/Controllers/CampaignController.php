@@ -4,29 +4,50 @@ namespace App\Http\Controllers;
 
 use App\Models\Campaign;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class CampaignController extends Controller
 {
     /**
-     * Show all campaigns
+     * List all campaigns with filtering
      */
-    public function index()
+    public function index(Request $request)
     {
-        $campaigns = Campaign::latest()->get();
+        $query = Campaign::with('donations');
+
+        if ($status = $request->get('status')) {
+            $query->where('status', $status);
+        }
+
+        if ($search = $request->get('search')) {
+            $query->where('title', 'like', "%{$search}%");
+        }
+
+        // Auto-update statuses on list load (lightweight)
+        Campaign::where('status', 'active')
+            ->whereNotNull('deadline')
+            ->where('deadline', '<', now())
+            ->update(['status' => 'expired']);
+
+        $campaigns = $query->latest()->paginate(12)->withQueryString();
 
         return view('campaigns.index', compact('campaigns'));
     }
 
     /**
-     * 🔥 SHOW SINGLE CAMPAIGN (NO AUTH BLOCK)
+     * Show a single campaign (by slug)
      */
     public function show(Campaign $campaign)
     {
+        // Live update status before showing
+        $campaign->updateStatus();
+        $campaign->load(['user', 'donations' => fn($q) => $q->where('status', 'paid')->latest()->take(5)]);
+
         return view('campaigns.show', compact('campaign'));
     }
 
     /**
-     * Show create form
+     * Create form (admin only via policy)
      */
     public function create()
     {
@@ -39,35 +60,35 @@ class CampaignController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'title' => 'required|string|min:3|max:255',
+            'title'       => 'required|string|min:3|max:255',
             'description' => 'required|min:10',
             'goal_amount' => 'required|numeric|min:1',
-            'deadline' => 'nullable|date|after:today',
-            'image' => 'nullable|image|max:2048',
+            'deadline'    => 'nullable|date|after:today',
+            'image'       => 'nullable|image|max:2048',
         ]);
 
-        // Upload image
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('campaigns', 'public');
         }
 
-        $data['user_id'] = auth()->id();
+        $data['user_id']        = auth()->id();
         $data['current_amount'] = 0;
+        $data['status']         = 'active';
+        // slug is auto-generated in model boot
 
-        Campaign::create($data);
+        $campaign = Campaign::create($data);
 
         return redirect()
-            ->route('campaigns.index')
-            ->with('success', 'Campaign created successfully 🚀');
+            ->route('campaigns.show', $campaign)
+            ->with('success', 'Campaign created successfully! 🚀');
     }
 
     /**
-     * Show edit form
+     * Edit form
      */
     public function edit(Campaign $campaign)
     {
         $this->authorize('update', $campaign);
-
         return view('campaigns.edit', compact('campaign'));
     }
 
@@ -79,23 +100,25 @@ class CampaignController extends Controller
         $this->authorize('update', $campaign);
 
         $data = $request->validate([
-            'title' => 'required|string|min:3|max:255',
+            'title'       => 'required|string|min:3|max:255',
             'description' => 'required|min:10',
             'goal_amount' => 'required|numeric|min:1',
-            'deadline' => 'nullable|date',
-            'image' => 'nullable|image|max:2048',
+            'deadline'    => 'nullable|date',
+            'image'       => 'nullable|image|max:2048',
         ]);
 
-        // Replace image if new uploaded
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('campaigns', 'public');
+        } else {
+            unset($data['image']);
         }
 
         $campaign->update($data);
+        $campaign->updateStatus();
 
         return redirect()
-            ->route('campaigns.index')
-            ->with('success', 'Campaign updated successfully ✨');
+            ->route('campaigns.show', $campaign)
+            ->with('success', 'Campaign updated successfully! ✨');
     }
 
     /**
@@ -109,14 +132,6 @@ class CampaignController extends Controller
 
         return redirect()
             ->route('campaigns.index')
-            ->with('success', 'Campaign deleted ❌');
+            ->with('success', 'Campaign deleted.');
     }
-
-    /**
-     * 🚫 REMOVE AUTO POLICY (CAUSE OF 403)
-     */
-    // public function __construct()
-    // {
-    //     $this->authorizeResource(Campaign::class, 'campaign');
-    // }
 }

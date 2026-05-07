@@ -26,15 +26,10 @@ class DonationController extends Controller
         // 🔑 Get Stripe key
         $stripeSecret = config('services.stripe.secret');
 
-        // 🔥 DEBUG (THIS IS WHAT I TOLD YOU TO ADD)
-        $stripeSecret = config('services.stripe.secret');
-
         if (!$stripeSecret) {
             Log::error('Stripe key missing from config');
             return back()->with('error', 'Payment configuration error ❌');
         }
-
-        Stripe::setApiKey($stripeSecret);
 
         // 🔥 Set API key
         Stripe::setApiKey($stripeSecret);
