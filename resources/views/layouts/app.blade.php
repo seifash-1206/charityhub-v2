@@ -112,11 +112,12 @@
                        class="nav-link {{ request()->routeIs('volunteers.*') ? 'active' : '' }}">
                         Volunteers
                     </a>
-
+                    @if(auth()->user()->role === 'admin')            
                     <a href="{{ route('donations.track') }}"
                        class="nav-link {{ request()->routeIs('donations.track*') ? 'active' : '' }}">
                         Track Donation
                     </a>
+                    @endif
 
                     @auth
                         <a href="{{ route('donations.my') }}"
