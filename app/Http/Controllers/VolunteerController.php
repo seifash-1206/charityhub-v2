@@ -13,10 +13,8 @@ class VolunteerController extends Controller
         $query = Volunteer::with('campaign');
 
         if ($search = $request->get('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
-            });
+            // User portal search intentionally avoids email matching to prevent contact-data enumeration.
+            $query->where('name', 'like', "%{$search}%");
         }
 
         if ($campaignId = $request->get('campaign_id')) {
@@ -34,20 +32,18 @@ class VolunteerController extends Controller
         return view('volunteers.index', compact('volunteers', 'campaigns', 'stats'));
     }
 
-    public function show(Volunteer $volunteer)
-    {
-        $volunteer->load('campaign');
-        return view('volunteers.show', compact('volunteer'));
-    }
-
     public function create()
     {
+        $this->authorize('create', Volunteer::class);
+
         $campaigns = Campaign::active()->latest()->get();
         return view('volunteers.create', compact('campaigns'));
     }
 
     public function store(Request $request)
     {
+        $this->authorize('create', Volunteer::class);
+
         $validated = $request->validate([
             'name'         => ['required', 'string', 'max:255'],
             'email'        => ['required', 'email', 'max:255', 'unique:volunteers,email'],
@@ -70,10 +66,7 @@ class VolunteerController extends Controller
 
     public function edit(Volunteer $volunteer)
     {
-        // Users can only edit their own volunteer profile
-        if ($volunteer->user_id && $volunteer->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('update', $volunteer);
 
         $campaigns = Campaign::active()->latest()->get();
         return view('volunteers.edit', compact('volunteer', 'campaigns'));
@@ -81,9 +74,7 @@ class VolunteerController extends Controller
 
     public function update(Request $request, Volunteer $volunteer)
     {
-        if ($volunteer->user_id && $volunteer->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('update', $volunteer);
 
         $validated = $request->validate([
             'name'         => ['required', 'string', 'max:255'],
@@ -103,9 +94,7 @@ class VolunteerController extends Controller
 
     public function destroy(Volunteer $volunteer)
     {
-        if ($volunteer->user_id && $volunteer->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('delete', $volunteer);
 
         $volunteer->delete();
 

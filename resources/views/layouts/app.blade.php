@@ -159,13 +159,6 @@
                         Volunteers
                     </a>
 
-                    @if(auth()->user() && auth()->user()->role === 'admin')
-                    <a href="{{ route('donations.track') }}"
-                        class="nav-link {{ request()->routeIs('donations.track*') ? 'active' : '' }}">
-                        Track Donation
-                    </a>
-                    @endif
-
                     @auth
                     <a href="{{ route('donations.my') }}"
                         class="nav-link {{ request()->routeIs('donations.my') ? 'active' : '' }}">
@@ -240,9 +233,6 @@
             <a href="{{ route('dashboard') }}" class="block py-2 text-sm font-medium text-secondary-700 dark:text-secondary-300 hover:text-primary-900 dark:hover:text-primary-400">Dashboard</a>
             <a href="{{ route('campaigns.index') }}" class="block py-2 text-sm font-medium text-secondary-700 dark:text-secondary-300 hover:text-primary-900 dark:hover:text-primary-400">Campaigns</a>
             <a href="{{ route('volunteers.index') }}" class="block py-2 text-sm font-medium text-secondary-700 dark:text-secondary-300 hover:text-primary-900 dark:hover:text-primary-400">Volunteers</a>
-            @if(auth()->user() && auth()->user()->role === 'admin')
-            <a href="{{ route('donations.track') }}" class="block py-2 text-sm font-medium text-secondary-700 dark:text-secondary-300 hover:text-primary-900 dark:hover:text-primary-400">Track Donation</a>
-            @endif
             @auth
             <a href="{{ route('donations.my') }}" class="block py-2 text-sm font-medium text-secondary-700 dark:text-secondary-300 hover:text-primary-900 dark:hover:text-primary-400">My Donations</a>
             @if(auth()->user()->role === 'admin')
@@ -321,7 +311,6 @@
                     &copy; {{ date('Y') }} CharityHub — Nonprofit Donation &amp; Campaign Platform
                 </p>
                 <div class="flex gap-4 text-sm text-secondary-400 dark:text-secondary-500">
-                    <a href="{{ route('donations.track') }}" class="hover:text-primary-900 dark:hover:text-primary-400 transition">Track Donation</a>
                     <a href="{{ route('campaigns.index') }}" class="hover:text-primary-900 dark:hover:text-primary-400 transition">Campaigns</a>
                 </div>
             </div>

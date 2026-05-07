@@ -20,7 +20,7 @@
                     ❤️ Your Donations
                 </h1>
                 <p class="text-lg md:text-xl text-gray-100 drop-shadow-md">
-                    Track and manage your charitable contributions
+                    View your charitable contribution history
                 </p>
             </div>
         </div>
@@ -33,9 +33,9 @@
                 <h2 class="text-2xl font-bold text-primary-900 dark:text-white">Donation History</h2>
                 <p class="text-secondary-600 dark:text-secondary-400 text-sm mt-1">Your donation history and certificates</p>
             </div>
-            <a href="{{ route('donations.track') }}"
+            <a href="{{ route('campaigns.index') }}"
                 class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 transition font-medium">
-                Track by ID →
+                Browse Campaigns →
             </a>
         </div>
 
@@ -91,10 +91,6 @@
                             <a href="{{ route('donations.receipt', $donation->id) }}"
                                 class="text-xs px-3 py-1.5 bg-primary-100 dark:bg-primary-900/40 text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-900/60 rounded-lg transition font-medium">
                                 📄 Certificate
-                            </a>
-                            <a href="{{ route('donations.verify', $donation->tracking_id) }}"
-                                class="text-xs px-3 py-1.5 bg-secondary-100 dark:bg-secondary-800 text-secondary-600 dark:text-secondary-400 hover:bg-secondary-200 dark:hover:bg-secondary-700 rounded-lg transition font-medium">
-                                🔗 Verify
                             </a>
                         </div>
                         @endif
