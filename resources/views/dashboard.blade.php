@@ -37,7 +37,7 @@
                 <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-8 translate-x-8"></div>
                 <p class="text-primary-200 dark:text-primary-300 text-xs font-semibold uppercase tracking-wider mb-1">Total Raised</p>
                 <p class="text-3xl font-bold text-white">${{ number_format($totalRaised, 0) }}</p>
-                <p class="text-primary-200 dark:text-primary-300 text-xs mt-2">From {{ $donations->count() }} donations</p>
+                <p class="text-primary-200 dark:text-primary-300 text-xs mt-2">From {{ $donationCount }} donations</p>
             </div>
 
             <!-- Total Campaigns -->
@@ -125,14 +125,14 @@
                 <!-- Recent Donations -->
                 <div class="glass-card overflow-hidden">
                     <div class="px-5 py-4 border-b border-secondary-200 dark:border-secondary-700 flex items-center justify-between bg-white/50 dark:bg-secondary-700/50">
-                        <h2 class="font-bold text-primary-900 dark:text-white text-sm flex items-center gap-2">💝 Recent Donations</h2>
+                        <h2 class="font-bold text-primary-900 dark:text-white text-sm flex items-center gap-2">💝 {{ auth()->user()->role === 'admin' ? 'Recent Donations' : 'My Recent Donations' }}</h2>
                         <a href="{{ route('donations.my') }}" class="text-xs text-primary-900 dark:text-primary-400 hover:underline">Mine →</a>
                     </div>
                     <div class="divide-y divide-secondary-100 dark:divide-secondary-700">
                         @forelse($donations->take(5) as $donation)
                         <div class="px-5 py-3 flex items-center justify-between hover:bg-primary-50/30 dark:hover:bg-primary-900/10 transition">
                             <div>
-                                <p class="text-xs font-medium text-secondary-700 dark:text-secondary-200">{{ $donation->user->name ?? '—' }}</p>
+                                <p class="text-xs font-medium text-secondary-700 dark:text-secondary-200">{{ auth()->user()->role === 'admin' ? ($donation->user->name ?? 'Anonymous Donor') : 'You' }}</p>
                                 <p class="text-xs text-secondary-400 dark:text-secondary-500 truncate max-w-32">{{ $donation->campaign->title ?? '—' }}</p>
                             </div>
                             <div class="text-right">
@@ -163,11 +163,6 @@
                             class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary-50 dark:bg-primary-900/20 hover:bg-primary-100 dark:hover:bg-primary-900/40 transition group">
                             <span class="text-xl">🎯</span>
                             <span class="text-sm font-medium text-primary-900 dark:text-primary-400 group-hover:text-primary-800 dark:group-hover:text-primary-300">Browse Campaigns</span>
-                        </a>
-                        <a href="{{ route('donations.track') }}"
-                            class="flex items-center gap-3 px-4 py-3 rounded-xl bg-secondary-100 dark:bg-secondary-800 hover:bg-secondary-200 dark:hover:bg-secondary-700 transition group">
-                            <span class="text-xl">🔍</span>
-                            <span class="text-sm font-medium text-secondary-700 dark:text-secondary-300">Track Donation</span>
                         </a>
                         <a href="{{ route('volunteers.create') }}"
                             class="flex items-center gap-3 px-4 py-3 rounded-xl bg-secondary-100 dark:bg-secondary-800 hover:bg-secondary-200 dark:hover:bg-secondary-700 transition group">

@@ -79,18 +79,26 @@ class AdminController extends Controller
         // 📈 Recent campaigns (FIXED)
         $recentCampaigns = Campaign::latest()->take(5)->get();
 
-        // 💰 Latest donations
-        $donations = Donation::with(['user', 'campaign'])
-            ->latest()
-            ->take(10)
-            ->get();
+        $user = Auth::user();
+
+        // 💰 User portal donation panel is privacy-scoped.
+        // Admins keep an all-donations view; regular users only see their own records.
+        $donationsQuery = Donation::with(['user', 'campaign'])->latest();
+
+        if ($user->role !== 'admin') {
+            $donationsQuery->where('user_id', $user->id);
+        }
+
+        $donationCount = (clone $donationsQuery)->count();
+        $donations = $donationsQuery->take(10)->get();
 
         return view('dashboard', compact(
             'totalRaised',
             'totalCampaigns',
             'activeCampaigns',
             'recentCampaigns',
-            'donations'
+            'donations',
+            'donationCount'
         ));
     }
 }

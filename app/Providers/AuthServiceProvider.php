@@ -6,9 +6,13 @@ use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvid
 
 // 🔥 Models
 use App\Models\Campaign;
+use App\Models\Donation;
+use App\Models\Volunteer;
 
 // 🔥 Policies
 use App\Policies\CampaignPolicy;
+use App\Policies\DonationPolicy;
+use App\Policies\VolunteerPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -20,6 +24,8 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         // 🔐 Campaign authorization mapping
         Campaign::class => CampaignPolicy::class,
+        Donation::class => DonationPolicy::class,
+        Volunteer::class => VolunteerPolicy::class,
     ];
 
     /**

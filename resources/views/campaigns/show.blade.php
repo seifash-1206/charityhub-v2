@@ -62,10 +62,10 @@
                             @foreach($campaign->donations as $d)
                                 <div class="flex items-center gap-3">
                                     <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-bold flex-shrink-0">
-                                        {{ strtoupper(substr($d->user->name ?? 'A', 0, 1)) }}
+                                        A
                                     </div>
                                     <div class="flex-1">
-                                        <p class="text-sm font-medium text-gray-800">{{ $d->user->name ?? 'Anonymous' }}</p>
+                                        <p class="text-sm font-medium text-gray-800">Anonymous Donor</p>
                                         <p class="text-xs text-gray-400">{{ $d->created_at->diffForHumans() }}</p>
                                     </div>
                                     <p class="text-sm font-bold text-blue-700">${{ number_format($d->amount, 0) }}</p>

@@ -46,7 +46,7 @@
         <!-- FILTERS -->
         <form method="GET" class="mb-8 flex flex-wrap gap-3">
             <input type="text" name="search" value="{{ request('search') }}"
-                placeholder="Search by name or email..."
+                placeholder="Search by volunteer name..."
                 class="flex-1 min-w-48 px-4 py-2 rounded-xl border border-secondary-200 dark:border-secondary-700 bg-white dark:bg-secondary-800 dark:text-white glass-input text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-600">
             <select name="campaign_id"
                 class="px-4 py-2 rounded-xl border border-secondary-200 dark:border-secondary-700 bg-white dark:bg-secondary-800 dark:text-white text-sm text-secondary-700 dark:text-secondary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-600">
@@ -80,7 +80,11 @@
                         </div>
                         <div>
                             <p class="font-bold text-primary-900 dark:text-white leading-tight">{{ $volunteer->name }}</p>
+                            @can('update', $volunteer)
                             <p class="text-xs text-secondary-500 dark:text-secondary-400 mt-0.5">{{ $volunteer->email }}</p>
+                            @else
+                            <p class="text-xs text-secondary-500 dark:text-secondary-400 mt-0.5">Contact details private</p>
+                            @endcan
                         </div>
                     </div>
                     <span class="text-xs font-medium px-2 py-1 rounded-full {{ $volunteer->getStatusBadgeClass() }}">
@@ -104,6 +108,7 @@
                         <span>{{ $volunteer->getAvailabilityLabel() }}</span>
                     </div>
 
+                    @can('update', $volunteer)
                     @if($volunteer->phone)
                     <div class="flex items-center gap-2 text-sm text-secondary-600 dark:text-secondary-400">
                         <svg class="w-4 h-4 text-secondary-400 dark:text-secondary-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,6 +117,7 @@
                         <span>{{ $volunteer->phone }}</span>
                     </div>
                     @endif
+                    @endcan
                 </div>
 
                 <!-- Hours badge -->
@@ -130,9 +136,8 @@
                     @endif
                 </div>
 
-                <!-- User owns this record -->
-                @auth
-                @if($volunteer->user_id === auth()->id())
+                <!-- Authorized management actions -->
+                @can('update', $volunteer)
                 <div class="flex gap-2 mt-3 pt-3 border-t border-secondary-200 dark:border-secondary-700">
                     <a href="{{ route('volunteers.edit', $volunteer) }}"
                         class="flex-1 text-center text-xs py-1.5 rounded-lg bg-primary-100 dark:bg-primary-900/40 text-primary-900 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-900/60 transition font-medium">
@@ -146,8 +151,7 @@
                         </button>
                     </form>
                 </div>
-                @endif
-                @endauth
+                @endcan
 
             </div>
             @empty

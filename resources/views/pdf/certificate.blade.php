@@ -104,11 +104,6 @@
 
             <p><strong>Date:</strong> {{ $donation->created_at->format('Y-m-d') }}</p>
 
-            <!-- QR CODE -->
-            <div style="margin-top: 15px;">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ urlencode(route('donations.verify', $donation->tracking_id)) }}" 
-                     alt="QR Code" width="80" height="80">
-            </div>
         </div>
 
         <p class="footer">

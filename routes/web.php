@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CampaignController;
@@ -36,24 +37,6 @@ Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle'])
 Route::get('/donation/success', [DonationController::class, 'success'])
     ->name('donations.success');
 
-// Public donation tracking
-Route::get('/track', [DonationTrackingController::class, 'index'])
-    ->name('donations.track');
-
-Route::post('/track', [DonationTrackingController::class, 'search'])
-    ->name('donations.track.search');
-
-Route::get('/verify/{trackingId}', [DonationTrackingController::class, 'verify'])
-    ->name('donations.verify');
-
-// Test PDF (dev only)
-Route::get('/test-pdf/{id}', function ($id) {
-    $donation = Donation::with(['user', 'campaign'])->findOrFail($id);
-    $pdf = Pdf::loadView('pdf.certificate', ['donation' => $donation]);
-    return $pdf->stream('certificate.pdf');
-})->name('donations.pdf.test');
-
-
 // ── AUTHENTICATED USER ROUTES ─────────────────────────────────────────────
 Route::middleware(['auth'])->group(function () {
 
@@ -74,10 +57,10 @@ Route::middleware(['auth'])->group(function () {
         ->name('donations.store');
 
     // Download receipt PDF
-    Route::get('/donations/{id}/receipt', function ($id) {
-        $donation = Donation::with(['user', 'campaign'])->findOrFail($id);
+    Route::get('/donations/{donation}/receipt', function (Donation $donation) {
+        $donation->load(['user', 'campaign']);
 
-        abort_unless($donation->user_id === auth()->id() || auth()->user()->role === 'admin', 403);
+        Gate::authorize('view', $donation);
 
         $pdf = Pdf::loadView('pdf.certificate', ['donation' => $donation]);
         return $pdf->download("charityhub-receipt-{$donation->tracking_id}.pdf");
@@ -87,8 +70,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/my-donations', [DonationTrackingController::class, 'myDonations'])
         ->name('donations.my');
 
-    // Volunteers (full CRUD for users)
-    Route::resource('volunteers', VolunteerController::class);
+    // Volunteers: users can register and manage only their own profile; admins can manage all.
+    Route::resource('volunteers', VolunteerController::class)->except(['show']);
 
 });
 
