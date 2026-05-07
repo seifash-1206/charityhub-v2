@@ -7,41 +7,53 @@
 
     <title>{{ config('app.name', 'CharityHub') }}</title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
+
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
 
-<body class="font-sans antialiased text-gray-900">
+<body class="font-sans antialiased text-gray-900 bg-gradient-to-br from-white via-blue-50 to-indigo-100 min-h-screen">
 
-    <!-- BACKGROUND -->
-    <div class="min-h-screen flex flex-col items-center justify-center 
-        bg-gradient-to-br from-white via-blue-50 to-blue-200 relative overflow-hidden">
+    <!-- BACKGROUND BLOBS -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute w-[500px] h-[500px] bg-blue-300/30 blur-[100px] rounded-full top-[-100px] left-[-100px]"></div>
+        <div class="absolute w-[400px] h-[400px] bg-indigo-300/20 blur-[100px] rounded-full bottom-[-50px] right-[-50px]"></div>
+    </div>
 
-        <!-- soft glass blobs -->
-        <div class="absolute w-96 h-96 bg-blue-300 opacity-30 blur-3xl rounded-full top-10 left-10"></div>
-        <div class="absolute w-96 h-96 bg-red-300 opacity-20 blur-3xl rounded-full bottom-10 right-10"></div>
+    <div class="min-h-screen flex flex-col items-center justify-center relative z-10 p-4">
 
         <!-- LOGO -->
-        <div class="relative z-10">
-            <a href="/">
-                <x-application-logo class="w-20 h-20 fill-current text-blue-900 opacity-80" />
+        <div class="mb-6">
+            <a href="/" class="flex flex-col items-center gap-3">
+                <div class="w-16 h-16 bg-white rounded-2xl shadow-md flex items-center justify-center overflow-hidden p-2">
+                    <img src="{{ asset('images/charity-hub-logo.png') }}" alt="CharityHub Logo" class="w-full h-full object-contain">
+                </div>
+                <span class="text-2xl font-bold text-gray-900 tracking-tight">Charity<span class="text-blue-600">Hub</span></span>
             </a>
         </div>
 
         <!-- GLASS CARD -->
-        <div class="relative z-10 w-full sm:max-w-md mt-6 px-8 py-6 
-            bg-white/70 backdrop-blur-xl 
-            border border-white/40 
+        <div class="w-full sm:max-w-md px-8 py-8 
+            bg-white/80 backdrop-blur-xl 
+            border border-white/50 
             shadow-2xl 
-            rounded-2xl">
+            rounded-3xl">
 
             {{ $slot }}
 
         </div>
+
     </div>
 
 </body>
